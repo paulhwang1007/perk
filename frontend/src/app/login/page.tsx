@@ -1,102 +1,108 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { createClient } from "@/utils/supabase/client"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { createClient } from "@/utils/supabase/client";
 
 export default function LoginPage() {
-  const router = useRouter()
-  const supabase = createClient()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<String | null>(null)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
+    const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
-    })
+    });
 
     if (error) {
-      setError(error.message)
-      setLoading(false)
+      setError(error.message);
     } else {
-      router.push("/dashboard")
-      router.refresh()
+      router.push("/dashboard");
+      router.refresh();
     }
-  }
+    setLoading(false);
+  };
 
-  const handleSignUp = async (e: React.FormEvent) => {
-      e.preventDefault()
-      setLoading(true)
-      setError(null)
-  
-      const { error } = await supabase.auth.signUp({
+  const handleSignUp = async () => {
+    setLoading(true);
+    setError(null);
+    const supabase = createClient();
+    const { error } = await supabase.auth.signUp({
         email,
         password,
-      })
-  
-      if (error) {
-        setError(error.message)
-        setLoading(false)
-      } else {
-        // Check if email confirmation is required/sent
-        setError("Check your email for confirmation link!")
-        setLoading(false)
-      }
+    });
+    if (error) {
+        setError(error.message);
+    } else {
+        setError('Check your email for the confirmation link.');
     }
+    setLoading(false);
+  }
 
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm space-y-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight">Perk</h1>
-          <p className="text-muted-foreground">Master your credit card portfolio</p>
-        </div>
-
+    <Card className="w-full bg-card border-border shadow-xl">
+      <CardHeader>
+        <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
+        <CardDescription className="text-center">
+          Enter your credentials to access your wallet
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
-              placeholder="name@example.com"
               type="email"
+              placeholder="name@example.com"
               value={email}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               required
+              className="bg-secondary/50"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Password</Label>
+              <Link href="#" className="text-sm text-primary hover:underline">
+                Forgot password?
+              </Link>
+            </div>
             <Input
               id="password"
               type="password"
               value={password}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               required
+              className="bg-secondary/50"
             />
           </div>
-
-          {error && <p className="text-sm text-red-500">{error}</p>}
-
-          <div className="flex flex-col gap-2">
-            <Button type="submit" disabled={loading} className="w-full">
-                {loading ? "Loading..." : "Sign In"}
-            </Button>
-            <Button variant="outline" type="button" onClick={handleSignUp} disabled={loading} className="w-full">
-                Sign Up
-            </Button>
-          </div>
+          {error && (
+            <div className="p-3 text-sm text-red-500 bg-red-500/10 rounded-md border border-red-500/20">
+              {error}
+            </div>
+          )}
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Signing in..." : "Sign In"}
+          </Button>
+          <Button type="button" variant="outline" className="w-full" onClick={handleSignUp} disabled={loading}>
+            {loading ? "..." : "Create Account"}
+          </Button>
         </form>
-      </div>
-    </div>
-  )
+      </CardContent>
+    </Card>
+  );
 }

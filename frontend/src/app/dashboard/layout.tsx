@@ -1,16 +1,18 @@
-import { AppSidebar } from "@/components/app-sidebar"
+import { Sidebar } from "@/components/sidebar";
 
 export default function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <div className="flex min-h-screen">
-      <AppSidebar />
-      <main className="flex-1 overflow-y-auto bg-background p-8">
-        {children}
+      <Sidebar />
+      <main className="flex-1 pl-64 transition-all duration-300">
+        <div className="mx-auto max-w-6xl px-8 py-8">
+          {children}
+        </div>
       </main>
     </div>
-  )
+  );
 }
