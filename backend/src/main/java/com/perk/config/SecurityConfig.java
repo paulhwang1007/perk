@@ -23,31 +23,14 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${perk.security.jwt.secret}")
-    private String jwtSecret;
-
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1/cards/**", "/api/v1/public/**").permitAll() // Public endpoints
-                .requestMatchers("/error").permitAll()
-                .anyRequest().authenticated()
-            )
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())))
-            .build();
-    }
+    @Value("${perk.security.supabase.url}")
+    private String supabaseUrl;
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        // Supabase usually uses HS256 with the secret
-        SecretKeySpec secretKey = new SecretKeySpec(jwtSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        return NimbusJwtDecoder.withSecretKey(secretKey)
-            .macAlgorithm(MacAlgorithm.HS256)
-            .build();
+        // The token is signed with ES256, which requires JWKS validation
+        String jwkSetUri = supabaseUrl + "/auth/v1/.well-known/jwks.json";
+        return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
     }
 
     @Bean
