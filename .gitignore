@@ -1,0 +1,20 @@
+# Environment variables
+.env
+.env*.local
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.iml
+
+# Build artifacts
+target/
+out/
+build/
+node_modules/
+dist/
